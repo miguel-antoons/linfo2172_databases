@@ -5,8 +5,7 @@ join
 
 (summarize (Independence join Encompasses) per (Encompasses {continent}): {countries := count()})
 join
-(summarize ((CountryCovid where year = 2021 and total_cases = max(CountryCovid rename {country as a_country} where a_country = country and year = 2021, total_cases)) join Encompasses) per (Encompasses {continent}): {covid_cases := sum(total_cases)})
-where countries > 0 and covid_cases > 0
+(summarize (((summarize (CountryCovid {country, year, total_cases} where year = 2021) by {country}: {n_max := max(total_cases)}) join Encompasses) {continent, n_max}) per (Encompasses {continent}): {covid_cases := sum(n_max)})
 
 summarize (CountryCovid where year = 2021) by {country}: {last := max(month)}
 
