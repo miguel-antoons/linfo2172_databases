@@ -1,9 +1,14 @@
 1.
 (summarize (Independence join Encompasses) per (Encompasses {continent}): {countries := count()})
 join
-(summarize ((CountryCovid where year = 2021) join Encompasses) per (Encompasses {continent}): {covid_cases := sum(total_cases)})
+(summarize ((CountryCovid where year = 2021 and month = max(CountryCovid rename {country as a_country} where a_country = country and year = 2021, month)) join Encompasses) per (Encompasses {continent}): {covid_cases := sum(total_cases)})
 
+(summarize (Independence join Encompasses) per (Encompasses {continent}): {countries := count()})
+join
+(summarize ((CountryCovid where year = 2021 and total_cases = max(CountryCovid rename {country as a_country} where a_country = country and year = 2021, total_cases)) join Encompasses) per (Encompasses {continent}): {covid_cases := sum(total_cases)})
+where countries > 0 and covid_cases > 0
 
+summarize (CountryCovid where year = 2021) by {country}: {last := max(month)}
 
 (summarize ((Encompasses {continent, country})
 join
@@ -14,7 +19,13 @@ join
 ((CountryCovid where year = 2021) {country, total_cases})) by {continent}: {n_sum := sum(total_cases)})
 
 2.
-((((((GeoMountain {mountain, country} rename {country as country1}) join GeoMountain) {mountain, country1, country} where country1 > country) join Country where code = country1) {mountain, country, name} rename {name as country1}) join Country where code = country) {mountain, country1, name} rename {name as country2}
+((((((GeoMountain {mountain, country} rename {country as country1})
+join
+GeoMountain) {mountain, country1, country} where country1 < country)
+join
+Country where code = country1) {mountain, country, name} rename {name as country1})
+join
+Country where code = country) {mountain, country1, name} rename {name as country2}
 
 3.
 ((((extend (((((Encompasses {country, continent} where continent = "Asia") join ((Country where population > 200000000) {code}) where code = country) {country})
@@ -33,4 +44,30 @@ join Country) {name} rename {name as country}
 ((summarize (Borders) by {country1}: {cnt := count()}) where cnt = 3) {country1} rename {country1 as country}
 
 6.
+((extend ((Country {code, population} minus (((Country {code}) minus (Borders {country1} rename {country1 as code})) join (Country {code, population}))) rename {code as country}
+join
+((CountryCovid where year = 2022 and month = 12) {total_cases, country})): {ratio := CAST_AS_RATIONAL(total_cases) / CAST_AS_RATIONAL(population)}) {country, ratio}) where ratio > max(extend ((Borders where country2 = country) join (Country {code, population} rename {code as country1, population as population2}) join ((CountryCovid where year = 2022 and month = 12) {country, total_cases} rename {country as country1, total_cases as total_cases2})): {ratio2 := CAST_AS_RATIONAL(total_cases2) / CAST_AS_RATIONAL(population2)}, ratio2)
 
+union
+((Country {code}) minus (Borders {country1}))
+
+(((Country {code}) minus (Borders {country1} rename {country1 as code})) join (Country {code, population}))
+
+
+Country
+
+max(
+    extend ((Borders where country2 = country)
+    join
+    (Country {code, population} rename {code as country1, population as population2})
+    join
+    ((CountryCovid where year = 2022 and month = 12) {country, total_cases} rename {country as country1, total_cases as total_cases2})): {ratio2 := CAST_AS_RATIONAL(total_cases2) / CAST_AS_RATIONAL(population2)}, ratio2)
+
+
+
+summarize (
+    (extend ((Country {code, population} rename {code as country})
+    join
+    ((CountryCovid where year = 2022 and month = 12) {country, total_cases})): {ratio := CAST_AS_RATIONAL(total_cases) / CAST_AS_RATIONAL(population)}) rename {country as country1}
+    join
+    (Borders)) by {country1}: {n_max := max(ratio)}
