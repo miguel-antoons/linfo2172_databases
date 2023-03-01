@@ -1,0 +1,76 @@
+1.
+Mountain {name}
+
+2.
+(CountryCovid  WHERE total_cases > 10000 AND month = 3 AND year = 2021) {country}
+
+3.
+((
+    (
+        (
+            (
+                Province where area < 200.0
+            ) rename {name as province} 
+        JOIN Encompasses where continent = "Europe"
+        ) rename {country as ccode}) {ccode, province}
+    JOIN Country WHERE ccode = code
+    ) rename {name as country}
+) {province, country}
+
+4.
+(((((
+    CountryCovid where month = 12 and year = 2022 and total_deaths > 10000
+) {country, total_deaths}
+join
+    Encompasses where continent = "Europe"
+) rename {country as ccode}) {ccode, total_deaths})
+join
+    Country where ccode = code
+) {name, population, total_deaths} rename {name as country}
+
+5.
+(((Country rename {code as country}) {country, name}) join Independence) {name, independence}
+
+6.
+((((((Borders where country2 = "TJ") {country1}) join Borders) where country2 = "IND") {country1}) join Country where code = country1) {code, name}
+
+7.
+(((((Mountain where mountains = "Alps" and height > 4000.0) {name}) join GeoMountain where mountain = name) {country}) join Country where code = country) {capital}
+
+8.
+(Country {code, name}) minus ((Country join (Language {country}) where code = country) {code, name})
+
+9.
+((((summarize (GeoMountain {mountain, country}) by {mountain} : {n_count := count()}) where n_count > 1) {mountain}) join Mountain where name = mountain) {mountains}
+
+10.
+(((((((CountryCovid where total_deaths > 10000) {country}) join Country where code = country) rename {capital as ccapital}) {code, ccapital}) join Province where code = country and name = ccapital) {ccapital}) rename {ccapital as capital}
+
+11.
+(((((Borders where country2 = "USA") {country1}) join Borders) {country2} union (Borders where country1 = "USA") {country2}) join Country where code = country2) {name} minus (Country where code = "USA") {name}
+
+12.
+(summarize (CountryCovid {country}) by {} : {cnt := count()}) {cnt}
+
+13.
+with (
+    zero_covid := (CountryCovid where year = 2021 and month = 12 and total_cases = 0) {country}
+):
+(((((((zero_covid join Borders where country1 = country) {country1, country2}) join Country where code = country1) {name, country2}) rename {name as country1}) join Country where country2 = code) {country1, name}) rename {name as country2}
+union
+extend (((zero_covid {country} minus (zero_covid join Borders where country1 = country) {country}) join Country where code = country) {name} rename {name as country1}): {country2 := ""}
+
+14.
+(((((Language rename {country as country2, percentage as percentage2}) where percentage2 = max((Language where country = country2), percentage)) {country2, name}) join (Country {code}) where code = country2) rename {code as country}) {country, name}
+
+15.
+with (
+    standard := (Borders rename {country1 as c1, country2 as c2}) {c1, c2},
+    mirror := (Borders rename {country1 as c2, country2 as c1}) {c1, c2}
+):
+standard minus mirror
+
+16.
+((extend ((summarize (Language) by {country} : {per_sum := sum(percentage)}) where per_sum < 99.0): {unknown_lang_per := 100.0 - per_sum}) {country, unknown_lang_per} join Country where code = country) {name, unknown_lang_per}
+union
+extend (Country {name} minus ((Language {country}) join Country where code = country) {name}): {unknown_lang_per := 100.0}

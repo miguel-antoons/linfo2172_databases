@@ -1,0 +1,36 @@
+1.
+(summarize (Independence join Encompasses) per (Encompasses {continent}): {countries := count()})
+join
+(summarize ((CountryCovid where year = 2021) join Encompasses) per (Encompasses {continent}): {covid_cases := sum(total_cases)})
+
+
+
+(summarize ((Encompasses {continent, country})
+join
+(Independence {country})) by {continent}: {cnt := count()})
+join
+(summarize ((Encompasses {continent, country})
+join
+((CountryCovid where year = 2021) {country, total_cases})) by {continent}: {n_sum := sum(total_cases)})
+
+2.
+((((((GeoMountain {mountain, country} rename {country as country1}) join GeoMountain) {mountain, country1, country} where country1 > country) join Country where code = country1) {mountain, country, name} rename {name as country1}) join Country where code = country) {mountain, country1, name} rename {name as country2}
+
+3.
+((((extend (((((Encompasses {country, continent} where continent = "Asia") join ((Country where population > 200000000) {code}) where code = country) {country})
+join
+((CountryCovid where year = 2020 and month = 12) {country, total_cases} rename {total_cases as total_cases_20}))
+join
+((CountryCovid where year = 2021 and month = 12) {country, total_cases} rename {total_cases as total_cases_21}))
+join
+((CountryCovid where year = 2022 and month = 12) {country, total_cases} rename {total_cases as total_cases_22}): {inc_21 := total_cases_21 - total_cases_20, inc_22 := total_cases_22 - total_cases_21}) where inc_21 > inc_22) {country} rename {country as code})
+join Country) {name} rename {name as country}
+
+4.
+((((Province where area > 5000.0) {country} join Borders where country = country2) {country1} join Language) rename {name as language}) {country, language}
+
+5.
+((summarize (Borders) by {country1}: {cnt := count()}) where cnt = 3) {country1} rename {country1 as country}
+
+6.
+
