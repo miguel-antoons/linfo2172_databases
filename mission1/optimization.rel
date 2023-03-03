@@ -30,6 +30,10 @@ join Country) {name} rename {name as country}
 5.
 ((summarize (Borders) by {country1}: {cnt := count()}) where cnt = 3) {country1} rename {country1 as country}
 
+extend (Borders {country1, country2} where country1 > country2): {cnt := count(country1)}
+
+(((Borders {country1, country2}) where country1 > country2) {country1, country2}) join (((Borders {country1, country2}) where country1 > country2) {country1, country2} rename {country2 as country3}) join (((Borders {country1, country2}) where country1 > country2) {country1, country2} rename {country2 as country4})
+
 6.
 with(
     t1 := (extend (((CountryCovid where month = 12) where year = 2022) {country, total_cases}) join (Country {code, population} rename {code as country}): {ratio := CAST_AS_RATIONAL(total_cases) / CAST_AS_RATIONAL(population)}) {country, ratio}
@@ -39,6 +43,17 @@ minus
 ((((((t1 rename {country as country1}) join (Borders {country1, country2})) rename {ratio as ratio1})
 join
 (((t1 rename {country as country1}) join (Borders {country1, country2})) rename {country1 as c2, country2 as c1} rename {c1 as country1, c2 as country2}))
+where ratio < ratio1) {country2} rename {country2 as country})
+
+# new version
+with(
+    t1 := ((extend (((CountryCovid where month = 12) where year = 2022) {country, total_cases}) join (Country {code, population} rename {code as country}): {ratio := CAST_AS_RATIONAL(total_cases) / CAST_AS_RATIONAL(population)}) {country, ratio} rename {country as country1}) join (Borders {country1, country2})
+):
+(((CountryCovid where month = 12) where year = 2022) {country}) join ((Borders {country1}) rename {country1 as country})
+minus
+((((t1 rename {ratio as ratio1})
+join
+((t1 rename {country1 as c2, country2 as c1}) rename {c1 as country1, c2 as country2}))
 where ratio < ratio1) {country2} rename {country2 as country})
 
 
