@@ -1,12 +1,21 @@
 --
--- File generated with SQLiteStudio v3.4.3 on Wed Mar 15 19:27:26 2023
+-- File generated with SQLiteStudio v3.4.3 on Mon Mar 20 12:15:13 2023
 --
--- Text encoding used: UTF-8
+-- Text encoding used: System
 --
 PRAGMA foreign_keys = off;
 BEGIN TRANSACTION;
 
+-- Table: bicycle
+DROP TABLE IF EXISTS bicycle;
+CREATE TABLE IF NOT EXISTS bicycle(
+    bnum integer not null,
+    constraint bicycle_pk primary key (bnum),
+    constraint fk_bicycle_vehicle foreign key (bnum) references vehicle(num)
+);
+
 -- Table: car
+DROP TABLE IF EXISTS car;
 CREATE TABLE IF NOT EXISTS car(
     num integer not null,
     plate_num varchar(20) not null,
@@ -15,6 +24,7 @@ CREATE TABLE IF NOT EXISTS car(
 );
 
 -- Table: customer
+DROP TABLE IF EXISTS customer;
 CREATE TABLE IF NOT EXISTS customer(
     cid integer not null default auto_increment,
     first_name varchar(30) not null,
@@ -26,6 +36,7 @@ CREATE TABLE IF NOT EXISTS customer(
 );
 
 -- Table: finished_reservation
+DROP TABLE IF EXISTS finished_reservation;
 CREATE TABLE IF NOT EXISTS finished_reservation(
     resid integer not null,
     distance integer not null,
@@ -35,6 +46,7 @@ CREATE TABLE IF NOT EXISTS finished_reservation(
 );
 
 -- Table: reservation
+DROP TABLE IF EXISTS reservation;
 CREATE TABLE IF NOT EXISTS reservation(
     resid integer not null default auto_increment,
     vnum integer not null,
@@ -47,6 +59,7 @@ CREATE TABLE IF NOT EXISTS reservation(
 );
 
 -- Table: station
+DROP TABLE IF EXISTS station;
 CREATE TABLE IF NOT EXISTS station(
     name varchar(30) not null,
     street varchar(50) not null,
@@ -57,6 +70,7 @@ CREATE TABLE IF NOT EXISTS station(
 );
 
 -- Table: vehicle
+DROP TABLE IF EXISTS vehicle;
 CREATE TABLE IF NOT EXISTS vehicle(
     num integer not null,
     sname varchar(30) not null,
@@ -68,6 +82,7 @@ CREATE TABLE IF NOT EXISTS vehicle(
 );
 
 -- Table: vehicle_class
+DROP TABLE IF EXISTS vehicle_class;
 CREATE TABLE IF NOT EXISTS vehicle_class(
     vcid integer not null default AUTO_INCREMENT,
     vcname varchar(30) not null,

@@ -38,10 +38,16 @@ create table vehicle(
 );
 
 create table car(
-    num integer not null,
+    cnum integer not null,
     plate_num varchar(20) not null,
-    constraint car_pk primary key (num),
-    constraint fk_car_vehicle foreign key (num) references vehicle(num)
+    constraint car_pk primary key (cnum),
+    constraint fk_car_vehicle foreign key (cnum) references vehicle(num)
+);
+
+create table bicycle(
+    bnum integer not null,
+    constraint bicycle_pk primary key (bnum),
+    constraint fk_bicycle_vehicle foreign key (bnum) references vehicle(num)
 );
 
 create table reservation(
