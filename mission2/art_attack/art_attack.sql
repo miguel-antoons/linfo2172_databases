@@ -1,9 +1,8 @@
 CREATE TABLE Piece_of_art (
     pof_id INT NOT NULL default AUTO_INCREMENT,
     creation_date DATE NOT NULL,
-    artist_id INT NULL,
-    constraint pk_piece_of_art PRIMARY KEY (pof_id),
-    constraint fk_artist_id FOREIGN KEY (artist_id) REFERENCES Artist(artist_id)
+    name VARCHAR(50) NOT NULL,
+    constraint pk_piece_of_art PRIMARY KEY (pof_id)
 );
 
 CREATE TABLE Artist (
@@ -12,6 +11,14 @@ CREATE TABLE Artist (
     birth_date DATE NOT NULL,
     birth_place VARCHAR(50) NOT NULL,
     constraint pk_artist PRIMARY KEY (artist_id)
+);
+
+create table Pof_Artist (
+    pof_id INT NOT NULL,
+    artist_id INT NOT NULL,
+    constraint pk_pof_artist PRIMARY KEY (pof_id, artist_id),
+    constraint fk_pof_id FOREIGN KEY (pof_id) REFERENCES Piece_of_art(pof_id),
+    constraint fk_artist_id FOREIGN KEY (artist_id) REFERENCES Artist(artist_id)
 );
 
 CREATE TABLE Paintings (

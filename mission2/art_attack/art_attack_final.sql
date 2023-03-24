@@ -1,7 +1,7 @@
 --
--- File generated with SQLiteStudio v3.4.3 on Thu Mar 23 21:30:39 2023
+-- File generated with SQLiteStudio v3.4.3 on Fri Mar 24 13:01:38 2023
 --
--- Text encoding used: System
+-- Text encoding used: UTF-8
 --
 PRAGMA foreign_keys = off;
 BEGIN TRANSACTION;
@@ -88,8 +88,17 @@ DROP TABLE IF EXISTS Piece_of_art;
 CREATE TABLE IF NOT EXISTS Piece_of_art (
     pof_id INT NOT NULL default AUTO_INCREMENT,
     creation_date DATE NOT NULL,
-    artist_id INT NULL,
-    constraint pk_piece_of_art PRIMARY KEY (pof_id),
+    name VARCHAR(50) NOT NULL,
+    constraint pk_piece_of_art PRIMARY KEY (pof_id)
+);
+
+-- Table: Pof_Artist
+DROP TABLE IF EXISTS Pof_Artist;
+CREATE TABLE IF NOT EXISTS Pof_Artist (
+    pof_id INT NOT NULL,
+    artist_id INT NOT NULL,
+    constraint pk_pof_artist PRIMARY KEY (pof_id, artist_id),
+    constraint fk_pof_id FOREIGN KEY (pof_id) REFERENCES Piece_of_art(pof_id),
     constraint fk_artist_id FOREIGN KEY (artist_id) REFERENCES Artist(artist_id)
 );
 
