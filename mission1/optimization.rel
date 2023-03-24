@@ -2,7 +2,9 @@
 (summarize (Independence join Encompasses) per (Encompasses {continent}): {countries := count()})
 join
 (summarize (
-    ((((CountryCovid {country, year, total_cases} where year = 2021) {country, total_cases}) minus (((((CountryCovid {country, year, total_cases} where year = 2021) rename {total_cases as tot}) join (CountryCovid {country, year, total_cases} where year = 2021) ) where tot < total_cases) {country, tot} rename {tot as total_cases})) join Encompasses) {continent, total_cases}) per (Encompasses {continent}
+    ((((CountryCovid {country, year, total_cases} where year = 2021) {country, total_cases})
+    minus
+    (((((CountryCovid {country, year, total_cases} where year = 2021) rename {total_cases as tot}) join (CountryCovid {country, year, total_cases} where year = 2021) ) where tot < total_cases) {country, tot} rename {tot as total_cases})) join Encompasses) {continent, total_cases}) per (Encompasses {continent}
 ): {covid_cases := sum(total_cases)})
 
 2.
