@@ -57,5 +57,3 @@ minus
 join
 ((t1 rename {country1 as c2, country2 as c1}) rename {c1 as country1, c2 as country2}))
 where ratio < ratio1) {country2} rename {country2 as country})
-
-
