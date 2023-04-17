@@ -1,9 +1,23 @@
 -- * queries when adding purchase per day table
 -- create table statement
-create table purchases_per_day as
-    select product, province, qty, time, count(*) as cnt
-    from Purchases
-    group by product, province, qty, time
+CREATE TABLE purchases_per_day(
+  product INT not null,
+  province INT not null,
+  qty INT not null,
+  time INT not null,
+  cnt INT not null
+);
+
+-- insert table statement
+insert into purchases_per_day (product, province, qty, time, cnt)
+with maxTime as (
+	select COALESCE(max(time), 0) as maxTime
+    from purchases_per_day
+) select product, province, qty, time, count(*) as cnt
+from
+	Purchases P
+    join maxTime M on P.time > M.maxTime
+group by product, province, qty, time;
 
 -- 1. 
 with purchasesPerProvince as (
@@ -102,20 +116,22 @@ with maxTime as (
     select date(max(time), '-10 days') as maxTime
     from purchases_per_day
 )
-    select product, sum(cnt) as cnt
-    from purchases_per_day
+select product, sum(cnt) as cnt
+from 
+    purchases_per_day
     join maxTime M on time > M.maxTime
-    group by product
+group by product
 
 -- 6.
 with maxTime as (
     select date(max(time), '-10 days') as maxTime
     from purchases_per_day
 )
-select maxTime as time, sum(cnt) as cnt
+select time, sum(cnt) as cnt
 from
     purchases_per_day
-    join maxTime on time > maxTime;
+    join maxTime on time > maxTime
+group by time;
 
 -- 7.
 with lastTenDays as (
@@ -185,7 +201,7 @@ itemsTwentyToTen as (
     select province, cnt * qty as qty_twenty_to_ten_days
     from
         purchases_per_day P
-        join lastTwentyDays L on P.time > L.twenty and P.time < L.ten
+        join lastTwentyDays L on P.time > L.twenty and P.time <= L.ten
 /*     order by qty_twenty_to_ten_days desc*/
 ),
 itemsTwentyPerProvince as (

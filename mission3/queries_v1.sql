@@ -110,10 +110,23 @@ with maxTime as (
     select date(max(time), '-10 days') as maxTime
     from Purchases
 )
-select maxTime as time, count(*) as cnt
+select time, count(*) as cnt
 from 
     Purchases
-    join maxTime on time > maxTime;
+    join maxTime on time > maxTime
+group by time;
+
+-- bon début
+-- with recursive
+-- dates (selected_date) AS (
+--   select min(time) AS selected_date FROM Purchases
+--   union all
+--   select date(selected_date, '+10 day') as selected_date from dates where selected_date < (select max(time) from Purchases)
+-- )
+-- select dates.selected_date as start_date, date(dates.selected_date, '+10 day') as end_date, count(*) as purchase_count
+-- from dates
+-- join Purchases on Purchases.time >= dates.selected_date and Purchases.time < date(dates.selected_date, '+10 day')
+-- group by start_date
 
 
 -- 7.
@@ -191,6 +204,7 @@ itemsLastTenDays as (
         Purchases P
         join lastTenDays L on P.time > L.time
     group by province
+    having qty_last_ten_days > 0
 /*     order by qty_last_ten_days desc*/
 ),
 itemsTwentyToTen as (
@@ -199,6 +213,7 @@ itemsTwentyToTen as (
         Purchases P
         join lastTwentyDays L on P.time > L.twenty and P.time < L.ten
     group by province
+    having qty_twenty_to_ten_days > 0
 /*     order by qty_twenty_to_ten_days desc*/
 ),
 tenMax as (
