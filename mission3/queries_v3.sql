@@ -24,7 +24,8 @@ group by product, province, qty, time;
 
 insert into Dates (time)
 select date(max(time), '-10 days')
-from purchases_per_day;
+from
+    purchases_per_day;
 
 -- 1. 
 with purchasesPerProvince as (
@@ -47,23 +48,26 @@ order by cnt desc, country
 limit 10
 ), reducedCountry as (
     select code, name
-    from Country
+    from
+        Country
     order by code
 )
-    select C.name as country, cnt
+select C.name as country, cnt
 from
     tenMax T
     join reducedCountry C on T.country = C.code
 
 -- 2.
 select product, sum(cnt) as cnt
-from purchases_per_day
+from
+    purchases_per_day
 group by product;
 
 -- 3.
 with zeroPurchases as (
     select province, sum(cnt) as cnt
-    from purchases_per_day
+    from
+        purchases_per_day
     where product = 0
     group by province
 ),
@@ -100,11 +104,13 @@ from
 -- 4.
 with encompassesFull as (
     select continent, country
-    from Encompasses
+    from
+        Encompasses
     where percentage = 100
 ), purchasesPerQtyPerProvince as (
     select province, qty, sum(cnt) as cnt
-    from purchases_per_day
+    from
+        purchases_per_day
     group by province, qty
 ), purchasesPerQtyPerCountry as (
     select country, qty, sum(cnt) as cnt
@@ -114,14 +120,16 @@ with encompassesFull as (
     group by country, qty
 )
 select continent, qty, sum(cnt) as cnt
-from encompassesFull E
+from
+    encompassesFull E
     join purchasesPerQtyPerCountry P on P.country = E.country
 group by continent, qty;
 
 -- 5.
 with maxTime as (
     select max(time) as maxTime
-    from Dates
+    from
+        Dates
 )
 select product, sum(cnt) as cnt
 from 
@@ -132,7 +140,8 @@ group by product
 -- 6.
 with maxTime as (
     select max(time) as maxTime
-    from Dates
+    from
+        Dates
 )
 select time, sum(cnt) as cnt
 from
@@ -142,7 +151,10 @@ group by time;
 
 -- 7.
 with provinceBrabant as (
-    select ROWID from Province where name = 'Brabant'
+    select ROWID 
+    from 
+        Province
+    where name = 'Brabant'
 ),
 purchaseBrabant as (
     select id, time
@@ -151,11 +163,16 @@ purchaseBrabant as (
         join provinceBrabant on provinceBrabant.ROWID = province
 )
 select id
-from purchaseBrabant where time = (select date(max(time), '+10 days') as maxTime from Dates);
+from
+    purchaseBrabant
+where time = (select date(max(time), '+10 days') as maxTime from Dates);
 
 -- 8.
 with provinceVienna as (
-    select ROWID from Province where name = 'Vienna'
+    select ROWID
+    from
+        Province
+    where name = 'Vienna'
 ),
 purchaseVienna as (
     select id, time
@@ -163,25 +180,32 @@ purchaseVienna as (
         Purchases
         join provinceVienna on provinceVienna.ROWID = province),
 maxTime as (
-    select date(max(time), '+10 days') as maxTime from Dates
+    select date(max(time), '+10 days') as maxTime
+    from
+        Dates
 )
 select id
-from purchaseVienna where time = (select maxTime from maxTime);
+from
+    purchaseVienna
+    where time = (select maxTime from maxTime);
 
 -- 9.
 with countriesRespectiveContinent as (
     select country, continent
-    from Encompasses
+    from
+        Encompasses
     where percentage = 100
 ),
 countriesProvince as (
     select continent, P.ROWID as province
-    from countriesRespectiveContinent C
-    join Province P on C.country = P.country
+    from
+        countriesRespectiveContinent C
+        join Province P on C.country = P.country
 ),
 lastTenDays as (
     select qty, province, sum(cnt) as cnt
-    from purchases_per_day
+    from
+        purchases_per_day
     where time > (select max(time) as time from Dates)
     group by province, qty
 ),
@@ -190,18 +214,22 @@ lastTenDaysFullCountries as (
     from
         lastTenDays L
         join countriesProvince C on L.province = C.province
-) select continent, qty, sum(cnt) as cnt
-from lastTenDaysFullCountries
+)
+select continent, qty, sum(cnt) as cnt
+from
+    lastTenDaysFullCountries
 group by continent, qty;
 
 -- 10.
 with lastTenDays as (
     select max(time) as time
-    from Dates
+    from
+        Dates
 ),
 lastTwentyDays as (
     select time as ten, date(time, '-10 days') as twenty
-    from lastTenDays
+    from
+        lastTenDays
 ),
 itemsLastTenDays as (
     select province, cnt * qty as qty_last_ten_days
