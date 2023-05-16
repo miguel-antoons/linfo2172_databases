@@ -36,19 +36,17 @@ with purchasesPerProvince as (
     select country, ROWID
     from
         Province
-    order by ROWID
 ), tenMax as (
 select country, sum(cnt) as cnt
 from
     purchasesPerProvince T
     join orderedProvince O on T.province = O.ROWID
 group by country
-order by cnt desc, country
+order by cnt desc
 limit 10
 ), reducedCountry as (
     select code, name
     from Country
-    order by code
 )
     select C.name as country, cnt
 from
