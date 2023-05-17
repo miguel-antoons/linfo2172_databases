@@ -79,11 +79,14 @@ limit 1;
 // As a result, Luxembourg is surrounded by exactly three countries. List the full names of all
 // countries that are in a similar situation as Luxembourg.
 match (c:Country)-[:Borders]->(c2:Country)
-with count(distinct c2.name) as degree, c
+with distinct c, count(distinct c2.name) as degree
 match (c)-[:Borders]->(c2:Country)
 where degree = 3
 with distinct c, collect(distinct c2.name) as neighbors
-match (c)-[:Borders]-(c2:Country {name: neighbors[0]})-[:Borders]-(c3:Country {name: neighbors[1]})-[:Borders]-(c4:Country {name: neighbors[2]})-[:Borders]-(c2:Country {name: neighbors[0]})
+match (c2)-[:Borders]->(c3:Country {name: neighbors[1]})
+match (c3)-[:Borders]->(c4:Country {name: neighbors[2]})
+match (c4)-[:Borders]->(c2)
+match (c)-[:Borders]->(c2)
 return distinct c.name;
 
 
